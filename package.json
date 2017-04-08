@@ -41,9 +41,12 @@
     "cordova-plugin-device",
     "cordova-plugin-splashscreen",
     "ionic-plugin-keyboard",
-    "com.pylonproducts.wifiwizard",
     "cordova-plugin-compat",
-    "cordova-plugin-geolocation"
+    "cordova-plugin-geolocation",
+    {
+      "locator": "https://github.com/hoerresb/WifiWizard",
+      "id": "com.pylonproducts.wifiwizard"
+    }
   ],
   "cordovaPlatforms": [
     "ios",
