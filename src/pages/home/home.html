@@ -1,0 +1,13 @@
+<ion-header>
+  <ion-navbar primary>
+    <ion-title>
+      <ion-select id="select" [(ngModel)]="ssid" (ionChange)="refreshMap()">
+        <ion-option *ngFor="let ssid of ssidList" value="{{ ssid }}">{{ ssid }} ({{ networkData[ssid].level }}dB)</ion-option>
+      </ion-select>
+    </ion-title>
+  </ion-navbar>
+</ion-header>
+
+<ion-content>
+  <div #map id="map"></div> 
+</ion-content>
