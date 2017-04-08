@@ -44,7 +44,7 @@
     "cordova-plugin-compat",
     "cordova-plugin-geolocation",
     {
-      "locator": "https://github.com/hoerresb/WifiWizard",
+      "locator": "https://github.com/parsonsmatt/WifiWizard.git",
       "id": "com.pylonproducts.wifiwizard"
     }
   ],
