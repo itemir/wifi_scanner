@@ -1,0 +1,24 @@
+<ion-list>
+  <ion-item>
+    <ion-label>Center to Position</ion-label>
+    <ion-toggle [(ngModel)]="center" (ionChange)="changeCentering()"></ion-toggle>
+  </ion-item>
+  <ion-item>
+    <ion-label>Save Networks</ion-label>
+    <ion-toggle [(ngModel)]="save" (ionChange)="changeSaving()"></ion-toggle>
+  </ion-item>
+  <ion-item>
+    <ion-label style='color: #000;'>Frequency</ion-label>
+    <ion-select [(ngModel)]="frequency" (ionChange)="changeFrequency()">
+      <ion-option value="all">All</ion-option>
+      <ion-option value="2.4">2.4 Ghz</ion-option>
+      <ion-option value="5">5 Ghz</ion-option>
+    </ion-select>
+  </ion-item>
+  <ion-item>
+    <button ion-button color="danger" (click)="clearData()" block>
+      Clear All Data
+    </button>
+  </ion-item>
+</ion-list>
+

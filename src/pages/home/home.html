@@ -2,9 +2,14 @@
   <ion-navbar primary>
     <ion-title>
       <ion-select id="select" [(ngModel)]="ssid" (ionChange)="refreshMap()">
-        <ion-option *ngFor="let ssid of ssidList" value="{{ ssid }}">{{ ssid }} ({{ networkData[ssid].level }}dB)</ion-option>
+        <ion-option *ngFor="let ssid of ssidList" value="{{ ssid }}">{{ ssid }} (<span *ngIf="networkData[ssid].level == -200">No Signal</span><span *ngIf="networkData[ssid].level != -200">{{ networkData[ssid].level }}dB</span>)</ion-option>
       </ion-select>
     </ion-title>
+    <ion-buttons end>
+      <button ion-button icon-only (click)='presentSettings()'>
+        <ion-icon name='options'></ion-icon>
+      </button>
+    </ion-buttons>
   </ion-navbar>
 </ion-header>
 

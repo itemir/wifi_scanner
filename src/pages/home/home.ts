@@ -1,5 +1,6 @@
 import { Component, ViewChild, ElementRef } from '@angular/core';
-import { Platform, NavController } from 'ionic-angular';
+import { Platform, NavController, PopoverController } from 'ionic-angular';
+import { SettingsPage } from './settings';
 
 const RADIUS=200;
 const MAXINTENSITY=130;
@@ -14,6 +15,9 @@ declare var google: any;
 })
 export class HomePage {
   @ViewChild('map') mapElement: ElementRef;
+  @ViewChild('popoverContent', { read: ElementRef }) content: ElementRef;
+  @ViewChild('popoverText', { read: ElementRef }) text: ElementRef;
+
   map: any;
   heatmap: any;
   networkData: any = {};
@@ -29,10 +33,31 @@ export class HomePage {
 
   constructor(
     public navCtrl: NavController,
+    public popoverCtrl: PopoverController,
     private platform: Platform
   ) {
     platform.ready().then( () => {
       this.initMap();
+      let currentDataString = window.localStorage.getItem('networkData');
+      if (currentDataString) {
+        let currentData = JSON.parse(currentDataString);
+        for (let ssid in currentData) {
+          let heatmapData = [];
+          for (let i=0; i < currentData[ssid].heatmapData.length; i++) 
+            heatmapData.push({
+              location: new google.maps.LatLng(
+                currentData[ssid].heatmapData[i].location.lat,
+                currentData[ssid].heatmapData[i].location.lng
+              ),
+              weight: currentData[ssid].heatmapData[i].weight
+            });
+          this.networkData[ssid] = {
+            level: currentData[ssid].level,
+            heatmapData: heatmapData
+          }
+        }
+        this.createSsidList();
+      }
       navigator.geolocation.watchPosition( (position) => {
         var latLng = new google.maps.LatLng(
           position.coords.latitude,
@@ -43,6 +68,9 @@ export class HomePage {
             this.ssid = networks[0].SSID;
             this.map.panTo(latLng);
           }
+          let centerToPosition = localStorage.getItem('centerToPosition');
+          if (centerToPosition == 'true')
+            this.map.panTo(latLng);
           this.updateHeatmap(latLng, networks);
         });
       }, (error) => {}, { enableHighAccuracy: true });
@@ -58,9 +86,16 @@ export class HomePage {
     return value;
   }
     
+  createSsidList() {
+    this.ssidList = Object.keys(this.networkData).sort();
+    this.ssidList = this.ssidList.filter(function(e){ return e != "" });
+  }
+
   updateHeatmap(location, networks) {
+    let processedNetworks = {};
     for (let i=0; i < networks.length; i++) {
       let ssid = networks[i].SSID;
+      processedNetworks[ssid] = true;
       if (!(ssid in this.networkData))
          this.networkData[ssid] = {
            level: null,
@@ -97,9 +132,32 @@ export class HomePage {
         this.networkData[ssid].heatmapData.push(weightedLocation);
       }
     }
-    this.ssidList = Object.keys(this.networkData).sort();
-    this.ssidList = this.ssidList.filter(function(e){ return e != "" }); 
+    this.createSsidList();
+        //alert(ssid + ' ' + processedNetworks.length + ' ' + processedNetworks[0]);
+    for (let ssid in this.networkData) 
+      if (!(ssid in processedNetworks)) 
+        this.networkData[ssid].level = -200;
     this.heatmap.setData(this.networkData[this.ssid].heatmapData);
+    if (window.localStorage.getItem('saveData') == 'true') {
+      let saveObject = {};
+      for (let ssid in this.networkData) {
+        let network = this.networkData[ssid];
+        let heatmapData = [];
+        for (let i=0; i < network.heatmapData.length; i++) 
+          heatmapData.push({ 
+            location: {
+              lat: network.heatmapData[i].location.lat(),
+              lng: network.heatmapData[i].location.lng()
+            },
+            weight: network.heatmapData[i].weight
+          });
+        saveObject[ssid] = {
+          level: network.level,
+          heatmapData: heatmapData 
+        } 
+      }
+      window.localStorage.setItem('networkData', JSON.stringify(saveObject));
+    }
   }
 
   refreshMap() {
@@ -159,4 +217,10 @@ export class HomePage {
     });
   }
 
+  presentSettings(event) {
+   let settingsModal = this.popoverCtrl.create(SettingsPage);
+   settingsModal.present({
+     ev: event
+   });
+  }
 }
